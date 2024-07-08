@@ -1,5 +1,6 @@
 - [오른값 참조, 이동 의미론, 완벽 전달](#오른값-참조-이동-의미론-완벽-전달)
   - [item 23. std::move와 std::forward를 숙지하라](#item-23-stdmove와-stdforward를-숙지하라)
+    - [그냥 두서없이 정리](#그냥-두서없이-정리)
     - [책 읽기전 q\&a](#책-읽기전-qa)
       - [정리](#정리)
       - [질답](#질답)
@@ -7,6 +8,34 @@
 # 오른값 참조, 이동 의미론, 완벽 전달
 
 ## item 23. std::move와 std::forward를 숙지하라
+
+### 그냥 두서없이 정리
+
+- 참조란?
+  - alias, 포인터에 비해 메모리(주소저장)와 연산(주소연산)면에서 효율적
+  - 수정가능성(alias이므로 원본 데이터)
+  - null safe
+- 오른값 참조란?
+  - 말 그대로 오른값에 대한 참조로, 이동의미론과 완벽전달에 사용
+  - 이동의미론은 복사대신 이동을 통한 효율성
+  - 완벽전달은 인자를 완벽히 전달해 성능 및 유연성 유지
+- 보편참조는?
+  - 생긴건 오른값 참조처럼 &&지만, template에 사용
+  - lvalue, rvalue 모두 참조를 받을 수 있으므로 유연(완벽전달)
+- lvalue, xvalue, rvalue
+  - [참조](https://modoocode.com/294)
+  - type과 value category가 있는데
+  - 정체의 유무, 이동가능성으로 나눔
+
+| x      | 이동 가능 | 이동불가능 |
+| ------ | --------- | ---------- |
+| 정체 o | xvalue    | lvalue     |
+| 정체 x | pravlue   | 쓸모 없음  |
+
+- decltype{표현식}은 함수처럼 쓰이고, 컴파일시 표현식에 대한 type을 반환한다
+  - decltype(xavlue) -> T&&
+  - decltype(lavlue) -> T&
+  - decltype(ravlue) -> T
 
 ### 책 읽기전 q&a
 
@@ -31,7 +60,7 @@
   - std::forward를 이용해 템플릿 함수에서 매개변수를 원래 타입 그대로 전달하여 성능을 최적화 하는것
 - MyClass(const std::string& str) : data(str) {}에서 data(str) {}가 뭔지
   - **initializer list**로 객체 생성과 동시에 값을 지정한다. 더 효율적
-- 아래 코드 하나하나 설명해줘. c++을 처음 배우는 사람이야. 다음 4가지는 꼭 포함해서 설명해줘 
+- 아래 코드 하나하나 설명해줘. c++을 처음 배우는 사람이야. 다음 4가지는 꼭 포함해서 설명해줘
   - 3) MyClass(MyClass&& other) noexcept : data(std::move(other.data)) { other.data.clear(); }가 뭔지
   - 4) std::move를 안쓰면 어떻게 되는지
 ```c++
