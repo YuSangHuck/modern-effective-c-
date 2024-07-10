@@ -163,7 +163,7 @@ main() {
 }
  */
 
-
+/*
 // 보편참조 오버로딩 예제.
 // cloneOfP(p)에서 완벽전달생성자를 연역하면 Person&가되고
 // 복사생성자(const Person&)가 아닌 완벽전달생성자(Person&)가 호출되고,
@@ -212,6 +212,7 @@ int main() {
   auto cloneOfP(p1);
   return 0;
 }
+ */
 
 /*
 // std::enable_if 예제
@@ -262,3 +263,11 @@ main() {
     return 0;
 }
  */
+
+int
+main() {
+    int x;
+    auto& &rx = x;
+    return 0;
+}
+
