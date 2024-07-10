@@ -174,18 +174,91 @@ main() {
 class Person {
 public:
   template<typename T>
-  explicit Person(T&& n): name(std::forward<T>(n)) {}
+  explicit Person(T&& n): name(std::forward<T>(n)) {
+		// T 객체로부터 std::string을 생성할 수 있는지 점검한다.
+		static_assert(
+			std::is_constructible<std::string, T>::value,
+			"Parameter n can't be used to construct a std::string"
+		);
+  }
   explicit Person(int idx);
 
 private:
   std::string name;
 };
 
+class Person2
+{
+  public:
+    template <typename T,
+              typename = typename std::enable_if<
+               !std::is_base_of<Person2,
+                               typename std::decay<T>::type
+                               >::value
+               >::type>
+    explicit Person2(T &&n): name(std::forward<T>(n)) {};
+
+  private:
+    std::string name;
+};
+
 int main() {
   // Person p1("fail");
   // auto cloneOfP(p1);
-  const Person p2("success");
-  auto cloneOfP(p2);
+  // const Person p2("success");
+  // auto cloneOfP(p2);
+
+  Person2 p1("success");
+  auto cloneOfP(p1);
   return 0;
 }
 
+/*
+// std::enable_if 예제
+#include <iostream>
+#include <type_traits>
+
+// 조건이 참일 때만 이 함수가 활성화됩니다.
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value, T>::type
+foo(T t) {
+    std::cout << "Integral type\n";
+    return t;
+}
+// 조건이 거짓일 때만 이 함수가 활성화됩니다.
+template <typename T>
+typename std::enable_if<!std::is_integral<T>::value, T>::type
+foo(T t) {
+    std::cout << "Non-integral type\n";
+    return t;
+}
+
+
+template <typename T>
+typename std::enable_if<std::is_arithmetic<T>::value>::type
+print(T t) {
+    std::cout << "Arithmetic type: " << t << std::endl;
+}
+template <typename T>
+typename std::enable_if<std::is_class<T>::value>::type
+print(T t) {
+    std::cout << "Class type\n";
+}
+struct MyClass
+{
+};
+
+int
+main() {
+  bool is_class = std::is_class<MyClass>::value;
+    bool is_int = std::is_class<int>::value;
+    foo(10); // Integral type
+    foo(10.5); // Non-integral type
+
+    print(42);   // Arithmetic type: 42
+    print(3.14); // Arithmetic type: 3.14
+    MyClass myObj;
+    print(myObj); // Class type
+    return 0;
+}
+ */
