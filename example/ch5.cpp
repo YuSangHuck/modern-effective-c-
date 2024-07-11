@@ -263,7 +263,7 @@ main() {
     return 0;
 }
  */
-
+/*
 int
 main() {
     int x;
@@ -271,3 +271,70 @@ main() {
     return 0;
 }
 
+ */
+/*
+// 완벽전달이 실패하는 경우. 인수가 중괄호 초기치라 타입 추론에 실패
+#include <iostream>
+#include <vector>
+
+template <typename T>
+void
+f(T&& param) {};
+
+template <typename T>
+void
+fwd(T &&param) // 임의의 인수를 받는다.
+{
+    f(std::forward<T>(param)); // 그 인수를 f에 전달한다.
+}
+template <typename... Ts>
+void
+fwd(Ts &&...params) // 임의의 인수들을 받는다.
+{
+    f(std::forward<Ts>(params)...); // 그것들을 f에 전달한다.
+}
+// void fwd(const std::vector<int>& v) {}
+
+int main() {
+
+    auto il = {1, 2, 3};
+    // il의 타입 추론 결과는
+    // std::initializer_lis<int>이다.
+
+    fwd(il);
+    // OK; il이 f로 완벽하게
+    // 전달된다.
+
+    fwd({1, 2, 3});
+}
+ */
+
+#include <iostream>
+#include <vector>
+#include "widget.hpp"
+
+void
+f(std::size_t val) {
+}
+
+template <typename T>
+void
+fwd(T &&param) {
+    f(std::forward<T>(param));
+}
+
+int
+main() {
+    std::vector<int> widgetData;
+    widgetData.reserve(Widget::MinVals);
+
+    f(Widget::MinVals); // OK; 그냥 f(28)로 처리됨
+
+    // 다음의 코드는 링크에 실패한다.
+    fwd(Widget::MinVals); // 오류! 링크에 실패한다.
+
+    const std::size_t *p = &(Widget::MinVals);
+    std::cout << p << std::endl;
+
+    return 0;
+}
